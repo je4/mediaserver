@@ -1,0 +1,7 @@
+GRPC localhost:1237/protos.Database/GetCache
+
+{
+  "collection": "mkb-001",
+  "signature": "test",
+  "action": "item"
+}

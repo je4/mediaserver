@@ -1,0 +1,15 @@
+# --log-level
+# CRITICAL = 0
+# ERROR = 1
+# WARNING = 2
+# NOTICE = 3
+# INFO = 4
+# DEBUG = 5
+LogLevel="DEBUG"
+#LogFile="C:/temp/gocfl.log"
+Addr="localhost:1237"
+
+
+[postgres]
+Connection = "host=localhost port=5000 user=%%PG_USER%% password=%%PG_PASSWORD%% dbname=mediaserver sslmode=require"
+Schema = "public"
