@@ -1,4 +1,4 @@
-GRPC localhost:1237/protos.Database/GetCache
+GRPC localhost:1237/ch.unibas.ub.mediaserver.Database/GetCache
 
 {
   "collection": "mkb-001",

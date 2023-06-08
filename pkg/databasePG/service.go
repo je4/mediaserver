@@ -1,16 +1,18 @@
-package database
+package databasePG
 
 import (
 	"context"
 	"database/sql"
 	"emperror.dev/errors"
+	"github.com/je4/mediaserver/v2/pkg/models"
 	pb "github.com/je4/mediaserver/v2/pkg/protos"
 )
 
 type Service struct {
 	db          *sql.DB
 	schema      string
-	collections *Collections
+	collections *models.Collections
+	storages    *models.Storages
 	pb.UnimplementedDatabaseServer
 }
 
@@ -42,9 +44,23 @@ func NewService(db *sql.DB, schema string) (*Service, error) {
 		schema: schema,
 	}
 
-	srv.collections, err = NewCollections(db, schema)
+	dbCollections, err := NewCollectionsDB(db, schema)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create collections db")
+	}
+
+	srv.collections, err = models.NewCollections(dbCollections)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot load collections")
+	}
+
+	dbStorages, err := NewStoragesDB(db, schema)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create storages db")
+	}
+	srv.storages, err = models.NewStorages(dbStorages)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot load storages")
 	}
 
 	return srv, nil

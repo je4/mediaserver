@@ -6,7 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/je4/mediaserver/v2/pkg/config"
-	"github.com/je4/mediaserver/v2/pkg/database"
+	"github.com/je4/mediaserver/v2/pkg/databasePG"
 	pb "github.com/je4/mediaserver/v2/pkg/protos"
 	lm "github.com/je4/utils/v2/pkg/logger"
 	_ "github.com/lib/pq"
@@ -46,7 +46,7 @@ func main() {
 		daLogger.Panicf("cannot ping database '%s': %v", conf.Postgres.Connection, err)
 	}
 
-	dbService, err := database.NewService(db, conf.Postgres.Schema)
+	dbService, err := databasePG.NewService(db, conf.Postgres.Schema)
 	if err != nil {
 		daLogger.Panicf("cannot create database service: %v", err)
 	}

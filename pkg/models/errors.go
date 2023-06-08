@@ -1,8 +1,6 @@
-package database
+package models
 
-import (
-	"emperror.dev/errors"
-)
+import "emperror.dev/errors"
 
 var notFound = errors.New("entity not found")
 

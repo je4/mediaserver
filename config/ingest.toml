@@ -1,0 +1,10 @@
+# --log-level
+# CRITICAL = 0
+# ERROR = 1
+# WARNING = 2
+# NOTICE = 3
+# INFO = 4
+# DEBUG = 5
+LogLevel="DEBUG"
+#LogFile="C:/temp/gocfl.log"
+

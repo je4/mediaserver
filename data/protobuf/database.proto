@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-
-package protos;
+package ch.unibas.ub.mediaserver;
 
 option go_package = "github.com/je4/mediaserver/v2/pkg/protos";
 //import "google/protobuf/timestamp.proto";

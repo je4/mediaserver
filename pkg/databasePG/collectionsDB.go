@@ -1,50 +1,45 @@
-package database
+package databasePG
 
 import (
 	"database/sql"
 	"emperror.dev/errors"
 	"encoding/json"
 	"fmt"
-	"sync"
+	"github.com/je4/mediaserver/v2/pkg/models"
 )
 
-func NewCollections(db *sql.DB, schema string) (*Collections, error) {
-	var collections = &Collections{}
-	return collections, collections.LoadAll(db, schema)
-}
+const LOAD_COLLECTIONS_ALL = "SELECT " +
+	"collectionid, " +
+	"estateid, " +
+	"name, " +
+	"description, " +
+	"signature_prefix, " +
+	"storageid, " +
+	"jwtkey, " +
+	"secret, " +
+	"public " +
+	"FROM %s.collection"
 
-type Collections struct {
-	sync.RWMutex
-	collections map[string]*Collection
-}
-
-func (colls *Collections) Get(name string) (*Collection, error) {
-	colls.RLock()
-	defer colls.RUnlock()
-	coll, ok := colls.collections[name]
-	if !ok {
-		return nil, errors.Wrapf(notFound, "collection '%s'", name)
+func NewCollectionsDB(db *sql.DB, schema string) (*collectionsDB, error) {
+	cdb := &collectionsDB{
+		db:     db,
+		schema: schema,
 	}
-	return coll, nil
+	return cdb, nil
 }
 
-func (colls *Collections) LoadAll(db *sql.DB, schema string) error {
+type collectionsDB struct {
+	db     *sql.DB
+	schema string
+}
+
+func (cdb *collectionsDB) LoadAll(colls *models.Collections) error {
 	colls.Lock()
 	defer colls.Unlock()
-	colls.collections = make(map[string]*Collection)
+	colls.Clear()
 	sqlStr := fmt.Sprintf(
-		"SELECT "+
-			"collectionid, "+
-			"estateid, "+
-			"name, "+
-			"description, "+
-			"signature_prefix, "+
-			"storageid, "+
-			"jwtkey, "+
-			"secret, "+
-			"public "+
-			"FROM %s.collection", schema)
-	rows, err := db.Query(sqlStr)
+		LOAD_COLLECTIONS_ALL, cdb.schema)
+	rows, err := cdb.db.Query(sqlStr)
 	if err != nil {
 		return errors.Wrapf(err, "cannot execute '%s'", sqlStr)
 	}
@@ -55,7 +50,7 @@ func (colls *Collections) LoadAll(db *sql.DB, schema string) error {
 	secret := sql.NullString{}
 	public := sql.NullString{}
 	for rows.Next() {
-		coll := &Collection{
+		coll := &models.Collection{
 			CollectionID:    0,
 			EstateID:        0,
 			Name:            "",
@@ -90,19 +85,11 @@ func (colls *Collections) LoadAll(db *sql.DB, schema string) error {
 			}
 			coll.Public = x
 		}
-		colls.collections[coll.Name] = coll
+		colls.Add(coll)
 	}
 	return nil
 }
 
-type Collection struct {
-	CollectionID    int64
-	EstateID        int64
-	Name            string
-	Description     string
-	SignaturePrefix string
-	StorageID       int64
-	JWTKey          string
-	Secret          string
-	Public          any
-}
+var (
+	_ models.CollectionsDatabase = (*collectionsDB)(nil)
+)
