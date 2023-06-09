@@ -3,11 +3,13 @@ package config
 import (
 	"emperror.dev/errors"
 	"github.com/BurntSushi/toml"
+	"github.com/je4/filesystem/v2/pkg/vfsrw"
 )
 
 type Ingest struct {
 	LogLevel string
 	LogFile  string
+	VFS      vfsrw.Config
 }
 
 func LoadIngestConfig(cfgData []byte) (*Ingest, error) {

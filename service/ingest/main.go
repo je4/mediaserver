@@ -3,12 +3,11 @@ package main
 import (
 	"emperror.dev/errors"
 	"flag"
-	"github.com/je4/filesystem/v2/pkg/sftpfs"
-	"github.com/je4/filesystem/v2/pkg/zipasfolder"
+	"github.com/je4/filesystem/v2/pkg/vfsrw"
+	"github.com/je4/filesystem/v2/pkg/writefs"
 	"github.com/je4/mediaserver/v2/pkg/config"
 	lm "github.com/je4/utils/v2/pkg/logger"
 	_ "github.com/lib/pq"
-	"golang.org/x/crypto/ssh"
 	"io"
 	"io/fs"
 	"os"
@@ -35,48 +34,24 @@ func main() {
 	daLogger, lf := lm.CreateLogger("ocfl", conf.LogFile, nil, conf.LogLevel, LOGFORMAT)
 	defer lf.Close()
 
-	privKeyName := "C:/daten/keys/syncthing/putty_ed25519.priv.openssh"
-	pem, err := os.ReadFile(privKeyName)
+	vfs, err := vfsrw.NewFS(conf.VFS, daLogger)
 	if err != nil {
-		daLogger.Panicf("cannot open private key file '%s'", privKeyName)
-	}
-	signer, err := ssh.ParsePrivateKey(pem)
-	if err != nil {
-		daLogger.Panicf("cannot parse private key file '%s'", privKeyName)
+		daLogger.Panicf("cannot create vfs: %v", err)
 	}
 
-	sshConf := &ssh.ClientConfig{
-		User:            "enge0000",
-		Auth:            []ssh.AuthMethod{ssh.PublicKeys(signer)},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	}
-	var addr = "localhost:2002"
-	var baseDir = "/digispace"
-	var numSessions = uint(5)
-	sftpFS, err := sftpfs.NewSFTPFSRW(addr, sshConf, baseDir, numSessions)
-	if err != nil {
-		daLogger.Panicf("cannot create sftpFS(%s, %s)", addr, baseDir)
-	}
-	defer sftpFS.Close()
+	startFolder := "vfs:/digispace/ub-reprofiler/mets-container/bau1/2020"
 
-	zipFolderFS, err := zipasfolder.NewFS(sftpFS, 2)
-	if err != nil {
-		daLogger.Panicf("cannot create zipAsFolderFS(%v)", sftpFS)
-	}
-
-	startFolder := "ub-reprofiler/mets-container/bau1/2020"
-
-	fs.WalkDir(zipFolderFS, startFolder, func(path string, d fs.DirEntry, err error) error {
+	fs.WalkDir(vfs, startFolder, func(path string, d fs.DirEntry, err error) error {
 		daLogger.Infof("path: %s", path)
 		return nil
 	})
 
-	fp, err := zipFolderFS.Open("ub-reprofiler/mets-container/bau1/2020/BAU_1_007097043_20190726T001152_master_ver1.zip/007097043/image/2316616.tif")
+	fp, err := vfs.Open("vfs:/digispace/ub-reprofiler/mets-container/bau1/2020/BAU_1_007097043_20190726T001152_master_ver1.zip/007097043/image/2316616.tif")
 	if err != nil {
 		daLogger.Panicf("cannot open tif in zip file")
 	}
 	defer fp.Close()
-	fpw, err := os.Create("c:/temp/test.tif")
+	fpw, err := writefs.Create(vfs, "vfs:/temp/test.tif")
 	if err != nil {
 		daLogger.Panicf("cannot create temp file")
 	}

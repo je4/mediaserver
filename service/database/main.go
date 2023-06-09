@@ -33,10 +33,10 @@ func main() {
 		panic(errors.Wrapf(err, "cannot unmarshal config toml data from '%s'", *configFile))
 	}
 
-	daLogger, lf := lm.CreateLogger("ocfl", conf.LogFile, nil, conf.LogLevel, LOGFORMAT)
+	daLogger, lf := lm.CreateLogger("ocfl", string(conf.LogFile), nil, string(conf.LogLevel), LOGFORMAT)
 	defer lf.Close()
 
-	db, err := sql.Open("postgres", conf.Postgres.Connection)
+	db, err := sql.Open("postgres", string(conf.Postgres.Connection))
 	if err != nil {
 		daLogger.Panicf("cannot connect to database '%s': %v", conf.Postgres.Connection, err)
 	}
@@ -46,12 +46,12 @@ func main() {
 		daLogger.Panicf("cannot ping database '%s': %v", conf.Postgres.Connection, err)
 	}
 
-	dbService, err := databasePG.NewService(db, conf.Postgres.Schema)
+	dbService, err := databasePG.NewService(db, string(conf.Postgres.Schema))
 	if err != nil {
 		daLogger.Panicf("cannot create database service: %v", err)
 	}
 
-	listener, err := net.Listen("tcp", conf.Addr)
+	listener, err := net.Listen("tcp", string(conf.Addr))
 	if err != nil {
 		daLogger.Panicf("cannot listen to tcp %s", conf.Addr)
 	}

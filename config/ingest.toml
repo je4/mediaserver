@@ -8,3 +8,30 @@
 LogLevel="DEBUG"
 #LogFile="C:/temp/gocfl.log"
 
+[vfs]
+    [vfs.temp]
+        Name="temp"
+        Type="os"
+        [vfs.temp.os]
+            BaseDir="C:/temp"
+            ZipAsFolderCache=3
+    [vfs.digispace]
+        Name="digispace"
+        Type="sftp"
+        [vfs.digispace.sftp]
+            Address="localhost:2002"
+            User="enge0000"
+            PrivateKey=["C:/daten/keys/syncthing/putty_ed25519.priv.openssh"]
+            BaseDir="/digispace"
+            Sessions=5
+            ZipAsFolderCache=3
+    [vfs.switch_ch]
+        Name="switch_ch"
+        Type="s3"
+        [vfs.switch_ch.s3]
+            AccessKeyID="%%SWITCH_ACCESSKEYID%%"
+            SecretAccessKey="%%SWITCH_SECRETACCESSKEY%%"
+            EndPoint="s3-zh.os.switch.ch"
+            UseSSL=true
+            ZipAsFolderCache=5
+            Bucket="test"
