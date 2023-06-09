@@ -5,7 +5,7 @@ go 1.20
 require (
 	emperror.dev/errors v0.8.1
 	github.com/BurntSushi/toml v1.3.1
-	github.com/je4/utils/v2 v2.0.7
+	github.com/je4/utils/v2 46c9ac359d4b4a901b21de3781f1c51053a0bd68
 	github.com/lib/pq v1.10.9
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
