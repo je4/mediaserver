@@ -1,4 +1,4 @@
-package databaseClient
+package databasePGClient
 
 import (
 	"emperror.dev/errors"
