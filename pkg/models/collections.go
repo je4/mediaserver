@@ -4,7 +4,7 @@ import "sync"
 import "emperror.dev/errors"
 
 type CollectionsDatabase interface {
-	LoadAll(colls *Collections) error
+	CollectionsLoadAll(colls *Collections) error
 }
 
 func NewCollections(db CollectionsDatabase) (*Collections, error) {
@@ -14,7 +14,7 @@ func NewCollections(db CollectionsDatabase) (*Collections, error) {
 		collections: map[string]*Collection{},
 	}
 
-	return collections, errors.WithStack(db.LoadAll(collections))
+	return collections, errors.WithStack(db.CollectionsLoadAll(collections))
 }
 
 type Collections struct {

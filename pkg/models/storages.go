@@ -6,7 +6,7 @@ import (
 )
 
 type StoragesDatabase interface {
-	LoadAll(stors *Storages) error
+	StoragesLoadAll(stors *Storages) error
 }
 
 func NewStorages(db StoragesDatabase) (*Storages, error) {
@@ -15,7 +15,7 @@ func NewStorages(db StoragesDatabase) (*Storages, error) {
 		db:       db,
 		storages: map[string]*Storage{},
 	}
-	return storages, db.LoadAll(storages)
+	return storages, db.StoragesLoadAll(storages)
 }
 
 type Storages struct {
