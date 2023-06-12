@@ -5,11 +5,10 @@ import (
 	"flag"
 	"github.com/je4/filesystem/v2/pkg/vfsrw"
 	"github.com/je4/mediaserver/v2/pkg/config"
-	"github.com/je4/mediaserver/v2/pkg/ingest"
 	lm "github.com/je4/utils/v2/pkg/logger"
 	_ "github.com/lib/pq"
+	"net"
 	"os"
-	"sync"
 )
 
 const VERSION = "v1.0-beta.1"
@@ -30,61 +29,22 @@ func main() {
 		panic(errors.Wrapf(err, "cannot unmarshal config toml data from '%s'", *configFile))
 	}
 
-	daLogger, lf := lm.CreateLogger("ocfl", conf.LogFile, nil, conf.LogLevel, LOGFORMAT)
+	daLogger, lf := lm.CreateLogger("ocfl", string(conf.LogFile), nil, string(conf.LogLevel), LOGFORMAT)
 	defer lf.Close()
 
 	vfs, err := vfsrw.NewFS(conf.VFS, daLogger)
 	if err != nil {
 		daLogger.Panicf("cannot create vfs: %v", err)
 	}
-
-	ctrl, err := ingest.NewController(conf.Addr, nil)
+	listener, err := net.Listen("tcp", string(conf.Addr))
 	if err != nil {
-		daLogger.Panicf("cannot create ingest controller: %v", err)
+		daLogger.Panicf("cannot listen to tcp %s", conf.Addr)
 	}
-	var wg = &sync.WaitGroup{}
-	wg.Add(1)
-	ctrl.Start(wg)
 
 	_ = vfs
-
-	wg.Wait()
-
-	/*
-		startFolder := "vfs:/digispace/ub-reprofiler/mets-container/bau1/2020"
-
-		fs.WalkDir(vfs, startFolder, func(path string, d fs.DirEntry, err error) error {
-			daLogger.Infof("path: %s", path)
-			return nil
-		})
-
-		fp, err := vfs.Open("vfs:/digispace/ub-reprofiler/mets-container/bau1/2020/BAU_1_007097043_20190726T001152_master_ver1.zip/007097043/image/2316616.tif")
-		if err != nil {
-			daLogger.Panicf("cannot open tif in zip file")
-		}
-		defer fp.Close()
-		fpw, err := writefs.Create(vfs, "vfs:/temp/test.tif")
-		if err != nil {
-			daLogger.Panicf("cannot create temp file")
-		}
-		defer fpw.Close()
-		if _, err := io.Copy(fpw, fp); err != nil {
-			daLogger.Panicf("error copying tif from zip")
-		}
-
-	*/
+	_ = listener
 
 	/*
-		dbService, err := database.NewService(db, conf.Postgres.Schema)
-		if err != nil {
-			daLogger.Panicf("cannot create database service: %v", err)
-		}
-
-		listener, err := net.Listen("tcp", conf.Addr)
-		if err != nil {
-			daLogger.Panicf("cannot listen to tcp %s", conf.Addr)
-		}
-
 		var opts []grpc.ServerOption
 		grpcServer := grpc.NewServer(opts...)
 		pb.RegisterDatabaseServer(grpcServer, dbService)

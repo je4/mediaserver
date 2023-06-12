@@ -1,0 +1,18 @@
+# --log-level
+# CRITICAL = 0
+# ERROR = 1
+# WARNING = 2
+# NOTICE = 3
+# INFO = 4
+# DEBUG = 5
+LogLevel="DEBUG"
+#LogFile="C:/temp/gocfl.log"
+Addr="localhost:1378"
+
+[Clients]
+DatabaseClient = "localhost:1237"
+
+
+[API]
+    Addr = "localhost:8081"
+    ExtAddr = "https://localhost:8081/"

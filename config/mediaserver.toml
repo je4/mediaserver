@@ -8,10 +8,12 @@
 LogLevel="DEBUG"
 #LogFile="C:/temp/gocfl.log"
 
-
-
 [DatabasePG]
 Addr="localhost:1237"
 [DatabasePG.postgres]
 Connection = "host=localhost port=5000 user=%%PG_USER%% password=%%PG_PASSWORD%% dbname=mediaserver sslmode=require"
 Schema = "public"
+
+[API]
+Addr = "localhost:8081"
+ExtAddr = "https://localhost:8081/"

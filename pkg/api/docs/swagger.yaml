@@ -1,0 +1,83 @@
+definitions:
+  api.NewMediaItemRequestBody:
+    properties:
+      signature:
+        description: Collection string `json:"collection" example:"erara" format:"string"`
+        example: sig-4711
+        format: string
+        type: string
+      urn:
+        example: vfs://digispace/data/test.zip/image.tif
+        format: string
+        type: string
+    type: object
+  rest.HTTPResultMessage:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+info:
+  contact:
+    email: it-ub@unibas.ch
+    name: University Library Basel, Informatik
+    url: https://ub.unibas.ch
+  description: Ingesting Media files
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Media Server Ingest API
+  version: "1.0"
+paths:
+  /{collection}/:
+    put:
+      consumes:
+      - application/json
+      description: creates new media item in database
+      parameters:
+      - description: Collection Name
+        in: path
+        name: collection
+        required: true
+        type: string
+      - description: Add new media
+        in: body
+        name: NewMediaRequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.NewMediaItemRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.HTTPResultMessage'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.HTTPResultMessage'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.HTTPResultMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.HTTPResultMessage'
+      security:
+      - ApiKeyAuth: []
+      summary: new media entry
+      tags:
+      - media
+securityDefinitions:
+  ApiKeyAuth:
+    description: Bearer Authentication with JWT
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -16,6 +16,10 @@ type Service struct {
 	pb.UnimplementedDatabaseServer
 }
 
+func (srv *Service) Ping(ctx context.Context, req *pb.Empty) (*pb.Empty, error) {
+	return &pb.Empty{}, srv.db.Ping()
+}
+
 func (srv *Service) GetCache(ctx context.Context, req *pb.CacheRequest) (*pb.CacheResult, error) {
 	var result = &pb.CacheResult{
 		Path:      "",
@@ -31,6 +35,7 @@ func (srv *Service) GetCache(ctx context.Context, req *pb.CacheRequest) (*pb.Cac
 	if err != nil {
 		var str = err.Error()
 		result.Error = &str
+		return result, nil
 	}
 	result.Error = &coll.Description
 

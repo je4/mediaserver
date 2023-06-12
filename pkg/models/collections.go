@@ -8,11 +8,13 @@ type CollectionsDatabase interface {
 }
 
 func NewCollections(db CollectionsDatabase) (*Collections, error) {
-	return &Collections{
+	var collections = &Collections{
 		RWMutex:     sync.RWMutex{},
 		db:          db,
 		collections: map[string]*Collection{},
-	}, nil
+	}
+
+	return collections, errors.WithStack(db.LoadAll(collections))
 }
 
 type Collections struct {

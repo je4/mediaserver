@@ -10,11 +10,12 @@ type StoragesDatabase interface {
 }
 
 func NewStorages(db StoragesDatabase) (*Storages, error) {
-	return &Storages{
+	storages := &Storages{
 		RWMutex:  sync.RWMutex{},
 		db:       db,
 		storages: map[string]*Storage{},
-	}, nil
+	}
+	return storages, db.LoadAll(storages)
 }
 
 type Storages struct {
