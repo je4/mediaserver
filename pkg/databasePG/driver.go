@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/je4/mediaserver/v2/pkg/models"
 	"github.com/lib/pq"
-	"strings"
 )
 
 const LOAD_COLLECTIONS_ALL = "SELECT " +
@@ -56,10 +55,10 @@ type driver struct {
 	loadItemSQL *sql.Stmt
 }
 
-func (drv *driver) StoragesLoadAll(stors *models.Storages) error {
-	stors.Lock()
-	defer stors.Unlock()
-	stors.Clear()
+func (drv *driver) StoragesLoadAll(stores *models.Storages) error {
+	stores.Lock()
+	defer stores.Unlock()
+	stores.Clear()
 	sqlStr := fmt.Sprintf(
 		LOAD_STORAGES_ALL, drv.schema)
 	rows, err := drv.db.Query(sqlStr)
@@ -86,15 +85,15 @@ func (drv *driver) StoragesLoadAll(stors *models.Storages) error {
 		); err != nil {
 			return errors.Wrapf(err, "cannot fetch row in query '%s'", sqlStr)
 		}
-		stors.Add(stor)
+		stores.Add(stor)
 	}
 	return nil
 }
 
-func (drv *driver) CollectionsLoadAll(colls *models.Collections) error {
-	colls.Lock()
-	defer colls.Unlock()
-	colls.Clear()
+func (drv *driver) CollectionsLoadAll(cols *models.Collections) error {
+	cols.Lock()
+	defer cols.Unlock()
+	cols.Clear()
 	sqlStr := fmt.Sprintf(
 		LOAD_COLLECTIONS_ALL, drv.schema)
 	rows, err := drv.db.Query(sqlStr)
@@ -143,20 +142,14 @@ func (drv *driver) CollectionsLoadAll(colls *models.Collections) error {
 			}
 			coll.Public = x
 		}
-		colls.Add(coll)
+		cols.Add(coll)
 	}
 	return nil
 }
 
-func (drv *driver) LoadItem(collsig string) (*models.Item, error) {
-	parts := strings.Split(collsig, "/")
-	if len(parts) != 2 {
-		return nil, errors.Errorf("invalid collection and signature '%s'", collsig)
-	}
+func (drv *driver) LoadItem(collection string, signature string) (*models.Item, error) {
 	var item = &models.Item{}
-	coll := parts[0]
-	sig := parts[1]
-	row := drv.loadItemSQL.QueryRow(coll, sig)
+	row := drv.loadItemSQL.QueryRow(collection, signature)
 	var nType sql.NullString
 	var nSubType sql.NullString
 	var nParentID sql.NullInt64

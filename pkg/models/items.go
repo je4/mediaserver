@@ -7,7 +7,7 @@ import (
 )
 
 type ItemsDatabase interface {
-	LoadItem(collsig string) (*Item, error)
+	LoadItem(collection string, signature string) (*Item, error)
 }
 
 func NewItems(db ItemsDatabase, cacheSize int, cacheExpiration time.Duration) (*Items, error) {
@@ -16,7 +16,7 @@ func NewItems(db ItemsDatabase, cacheSize int, cacheExpiration time.Duration) (*
 		if !ok {
 			return nil, errors.Errorf("invalid key %v", i)
 		}
-		item, err := db.LoadItem(collsig)
+		item, err := db.LoadItem(collsig, "")
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot load item '%s'", collsig)
 		}
