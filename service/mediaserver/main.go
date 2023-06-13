@@ -7,10 +7,10 @@ import (
 	"github.com/je4/mediaserver/v2/pkg/api"
 	"github.com/je4/mediaserver/v2/pkg/config"
 	"github.com/je4/mediaserver/v2/pkg/databasePG"
-	pb "github.com/je4/mediaserver/v2/pkg/protos"
 	"github.com/je4/mediaserver/v2/pkg/service"
 	lm "github.com/je4/utils/v2/pkg/logger"
 	_ "github.com/lib/pq"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"os"
 	"os/signal"
 	"sync"
@@ -58,7 +58,7 @@ func main() {
 		daLogger.Panicf("error creating database client for '%s'", string(conf.DatabasePG.Addr))
 	}
 
-	if _, err := dbClient.Ping(context.Background(), &pb.Empty{}); err != nil {
+	if _, err := dbClient.Ping(context.Background(), &emptypb.Empty{}); err != nil {
 		daLogger.Errorf("cannot ping database: %v", err)
 	}
 	sdl, err = api.Startup(conf.Api, dbClient, wg, daLogger)

@@ -9,8 +9,9 @@ type StoragesDatabase interface {
 	StoragesLoadAll(stors *Storages) error
 }
 
-func NewStorages(db StoragesDatabase) (*Storages, error) {
+func NewStorages(p *Pool, db StoragesDatabase) (*Storages, error) {
 	storages := &Storages{
+		Pool:     p,
 		RWMutex:  sync.RWMutex{},
 		db:       db,
 		storages: map[string]*Storage{},
@@ -19,6 +20,7 @@ func NewStorages(db StoragesDatabase) (*Storages, error) {
 }
 
 type Storages struct {
+	*Pool
 	sync.RWMutex
 	db       StoragesDatabase
 	storages map[string]*Storage

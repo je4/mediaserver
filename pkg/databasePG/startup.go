@@ -54,12 +54,12 @@ func Startup(conf *config.DatabasePG, wg *sync.WaitGroup, log *logging.Logger) (
 	pb.RegisterDatabaseServer(grpcServer, dbService)
 
 	go func() {
+		defer wg.Done()
 		fmt.Printf("starting databasePG grpc server at %s\n", conf.Addr)
 		if err := grpcServer.Serve(listener); err != nil {
 			log.Errorf("error executing databasePG service: %v", err)
 		}
 		log.Info("databasePG service ended")
-		wg.Done()
 	}()
 	return &databasePGShutdownService{
 		db:     db,

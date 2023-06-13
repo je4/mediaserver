@@ -7,34 +7,43 @@ type CollectionsDatabase interface {
 	CollectionsLoadAll(colls *Collections) error
 }
 
-func NewCollections(db CollectionsDatabase) (*Collections, error) {
+func NewCollections(p *Pool, db CollectionsDatabase) (*Collections, error) {
 	var collections = &Collections{
-		RWMutex:     sync.RWMutex{},
-		db:          db,
-		collections: map[string]*Collection{},
+		Pool:    p,
+		RWMutex: sync.RWMutex{},
+		db:      db,
+		cols:    map[string]*Collection{},
 	}
 
 	return collections, errors.WithStack(db.CollectionsLoadAll(collections))
 }
 
 type Collections struct {
+	*Pool
 	sync.RWMutex
-	db          CollectionsDatabase
-	collections map[string]*Collection
+	db   CollectionsDatabase
+	cols map[string]*Collection
 }
 
-func (colls *Collections) Add(coll *Collection) {
-	colls.collections[coll.Name] = coll
+func (cols *Collections) Add(coll *Collection) {
+	cols.cols[coll.Name] = coll
 }
 
-func (colls *Collections) Clear() {
-	colls.collections = map[string]*Collection{}
+func (cols *Collections) Clear() {
+	cols.cols = map[string]*Collection{}
 }
 
-func (colls *Collections) Get(name string) (*Collection, error) {
-	colls.RLock()
-	defer colls.RUnlock()
-	coll, ok := colls.collections[name]
+/*
+func (cols *Collections) New(newColl *Collection) (*Collection, error) {
+	result, err := cols.db.CollectionsNew(newColl)
+	return result, err
+}
+*/
+
+func (cols *Collections) Get(name string) (*Collection, error) {
+	cols.RLock()
+	defer cols.RUnlock()
+	coll, ok := cols.cols[name]
 	if !ok {
 		return nil, errors.Wrapf(notFound, "collection '%s'", name)
 	}

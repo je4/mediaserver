@@ -9,7 +9,8 @@ import (
 	"github.com/lib/pq"
 )
 
-const LOAD_COLLECTIONS_ALL = "SELECT " +
+const SQL_COLLECTIONS_LOADALL = "" +
+	"SELECT " +
 	"collectionid, " +
 	"estateid, " +
 	"name, " +
@@ -21,7 +22,8 @@ const LOAD_COLLECTIONS_ALL = "SELECT " +
 	"public " +
 	"FROM %s.collection"
 
-const LOAD_STORAGES_ALL = "SELECT " +
+const SQL_STORAGES_LOADALL = "" +
+	"SELECT " +
 	"storageid, " +
 	"name, " +
 	"filebase, " +
@@ -30,9 +32,16 @@ const LOAD_STORAGES_ALL = "SELECT " +
 	"tempdir " +
 	"FROM %s.storage"
 
-const LOAD_ITEM_SQL = "SELECT i.itemid, i.collectionid, i.signature, i.urn, i.type, i.subtype, i.objecttype, " +
-	"i.parentid, i.mimetype, i.error, i.sha512, i.metadata, i.creation_type, i.last_modified, i.disabled, i.public, " +
-	"i.public_actions, i.status FROM %s.item i, %s.collection c WHERE i.collectionid=c.collectionid AND c.name=? AND i.signature=?"
+const SQL_LOADITEM = "" +
+	"SELECT i.itemid, i.collectionid, i.signature, i.urn, i.type, i.subtype, i.objecttype, " +
+	"i.parentid, i.mimetype, i.error, i.sha512, i.metadata, i.creation_date, i.last_modified, i.disabled, i.public, " +
+	"i.public_actions, i.status " +
+	"FROM %s.item i, %s.collection c " +
+	"WHERE i.collectionid=c.collectionid AND c.name=$1 AND i.signature=$2"
+
+const SQL_COLLECTION_NEWITEM = "" +
+	"INSERT INTO %s.item (collectionid, signature, urn) " +
+	"VALUES($1, $2, $3) returning itemid"
 
 func NewDriver(db *sql.DB, schema string) (*driver, error) {
 	var err error
@@ -40,7 +49,7 @@ func NewDriver(db *sql.DB, schema string) (*driver, error) {
 		db:     db,
 		schema: schema,
 	}
-	sqlStr := fmt.Sprintf(LOAD_ITEM_SQL, schema, schema)
+	sqlStr := fmt.Sprintf(SQL_LOADITEM, schema, schema)
 	drv.loadItemSQL, err = db.Prepare(sqlStr)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot prepare statement [%s]", sqlStr)
@@ -60,7 +69,7 @@ func (drv *driver) StoragesLoadAll(stores *models.Storages) error {
 	defer stores.Unlock()
 	stores.Clear()
 	sqlStr := fmt.Sprintf(
-		LOAD_STORAGES_ALL, drv.schema)
+		SQL_STORAGES_LOADALL, drv.schema)
 	rows, err := drv.db.Query(sqlStr)
 	if err != nil {
 		return errors.Wrapf(err, "cannot execute '%s'", sqlStr)
@@ -95,7 +104,7 @@ func (drv *driver) CollectionsLoadAll(cols *models.Collections) error {
 	defer cols.Unlock()
 	cols.Clear()
 	sqlStr := fmt.Sprintf(
-		LOAD_COLLECTIONS_ALL, drv.schema)
+		SQL_COLLECTIONS_LOADALL, drv.schema)
 	rows, err := drv.db.Query(sqlStr)
 	if err != nil {
 		return errors.Wrapf(err, "cannot execute '%s'", sqlStr)
@@ -145,6 +154,21 @@ func (drv *driver) CollectionsLoadAll(cols *models.Collections) error {
 		cols.Add(coll)
 	}
 	return nil
+}
+
+func (drv *driver) CollectionNewItem(collection models.Collection, signature, urn string) (*models.Item, error) {
+	var params = []any{collection.CollectionID, signature, urn}
+	row := drv.db.QueryRow(SQL_COLLECTION_NEWITEM, params...)
+	var itemID int64
+	if err := row.Scan(&itemID); err != nil {
+		return nil, errors.Wrapf(err, "cannot scan result from '%s' %v", SQL_COLLECTION_NEWITEM, params)
+	}
+	return &models.Item{
+		ItemID:       itemID,
+		CollectionID: collection.CollectionID,
+		Signature:    signature,
+		Urn:          urn,
+	}, nil
 }
 
 func (drv *driver) LoadItem(collection string, signature string) (*models.Item, error) {
