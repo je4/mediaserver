@@ -10,13 +10,13 @@ LogLevel="DEBUG"
 Addr="localhost:8081"
 
 [vfs]
-    [vfs.temp]
+    [vfs.temp] # vfs:/temp/blah
         Name="temp"
         Type="os"
         [vfs.temp.os]
             BaseDir="C:/temp"
             ZipAsFolderCache=3
-    [vfs.digispace]
+    [vfs.digispace] # vfs:/digispace/blah
         Name="digispace"
         Type="sftp"
         [vfs.digispace.sftp]
@@ -26,7 +26,7 @@ Addr="localhost:8081"
             BaseDir="/digispace"
             Sessions=5
             ZipAsFolderCache=3
-    [vfs.switch_ch]
+    [vfs.switch_ch] # vfs:/switch_ch/blah
         Name="switch_ch"
         Type="s3"
         [vfs.switch_ch.s3]
@@ -35,4 +35,4 @@ Addr="localhost:8081"
             EndPoint="s3-zh.os.switch.ch"
             UseSSL=true
             ZipAsFolderCache=5
-            Bucket="test"
+            Bucket="testarchive"
