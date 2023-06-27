@@ -12,10 +12,11 @@ type ApiConfig struct {
 }
 
 type Api struct {
-	LogLevel string
-	LogFile  string
-	API      ApiConfig    `toml:"API"`
-	VFS      vfsrw.Config `toml:"VFS"`
+	LogLevel   string
+	LogFile    string
+	API        ApiConfig    `toml:"API"`
+	VFS        vfsrw.Config `toml:"VFS"`
+	DatabasePG *DatabasePG
 }
 
 func LoadApiConfig(cfgData []byte) (*Api, error) {

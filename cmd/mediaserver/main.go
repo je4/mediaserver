@@ -43,7 +43,7 @@ func main() {
 
 	var shutDownList = []service.ShutdownService{}
 
-	sdl, err := databasePG.Startup(conf.DatabasePG, wg, daLogger)
+	sdl, err := databasePG.StartupPlain(conf.DatabasePG, wg, daLogger)
 	if err != nil {
 		daLogger.Panicf("error starting databasPG: %v", err)
 	}
@@ -53,7 +53,7 @@ func main() {
 	daLogger.Infof("sleeping 2sec")
 	time.Sleep(2 * time.Second)
 
-	dbClient, err := databasePG.NewClientPlain(string(conf.DatabasePG.Addr))
+	dbClient, err := databasePG.NewClientPlain(string(conf.DatabasePG.Addr), "daToken")
 	if err != nil {
 		daLogger.Panicf("error creating database client for '%s'", string(conf.DatabasePG.Addr))
 	}

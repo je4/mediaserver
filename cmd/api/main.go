@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/je4/mediaserver/v2/pkg/api"
 	"github.com/je4/mediaserver/v2/pkg/config"
+	"github.com/je4/mediaserver/v2/pkg/databasePG"
 	lm "github.com/je4/utils/v2/pkg/logger"
 	_ "github.com/lib/pq"
 	"os"
@@ -31,7 +32,13 @@ func main() {
 
 	daLogger, lf := lm.CreateLogger("mediaserver-api", conf.LogFile, nil, conf.LogLevel, LOGFORMAT)
 	defer lf.Close()
-	ctrl, err := api.NewController(&conf.API, nil)
+
+	dbClient, err := databasePG.NewClientPlain(string(conf.DatabasePG.Addr), "daToken")
+	if err != nil {
+		daLogger.Panicf("error creating database client for '%s'", string(conf.DatabasePG.Addr))
+	}
+
+	ctrl, err := api.NewController(&conf.API, nil, dbClient)
 	if err != nil {
 		daLogger.Panicf("cannot create ingest controller: %v", err)
 	}
