@@ -12,8 +12,11 @@ type Postgres struct {
 }
 
 type DatabasePG struct {
-	Addr     cfgutil.EnvString
-	Postgres *Postgres
+	Addr       cfgutil.EnvString
+	ServerCert cfgutil.EnvString
+	ServerKey  cfgutil.EnvString
+	Token      cfgutil.EnvString
+	Postgres   *Postgres
 }
 
 type ServiceDatabasePG struct {

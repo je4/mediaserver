@@ -10,6 +10,9 @@ LogLevel="DEBUG"
 
 [DatabasePG]
 Addr="localhost:1237"
+Token="aslkjfs340983425sdlkffsd"
+ServerCert="config/localhost.cert.pem"
+ServerKey="config/localhost.key.pem"
 [DatabasePG.postgres]
 Connection = "host=localhost port=5000 user=%%PG_USER%% password=%%PG_PASSWORD%% dbname=mediaserver sslmode=require"
 Schema = "public"

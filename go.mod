@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/martian v2.1.0+incompatible
 	github.com/je4/filesystem/v2 v2.0.0-20230609145206-c05fa1f72595
-	github.com/je4/utils/v2 v2.0.8-0.20230609135718-aed149c118d2
+	github.com/je4/utils/v2 v2.0.8-0.20230706071847-4e7e2fd72017
 	github.com/lib/pq v1.10.9
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/swaggo/files v1.0.1
